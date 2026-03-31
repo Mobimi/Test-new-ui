@@ -545,10 +545,12 @@ function Lib:CreateWindow(title, author, iconId)
     stroke(toggleBtn, THEME.ACCENT, 2)
     makeDraggable(toggleBtn, conns)
 
-    local FULL_SIZE = UDim2.new(0, 540, 0, 340)
-    local FULL_POS  = UDim2.new(0.5, -270, 0.5, -170)
-    local MINI_SIZE = UDim2.new(0, 52, 0, 52)
-    local MINI_POS  = UDim2.new(0.02, 0, 0.5, -26)
+    local FULL_SIZE    = UDim2.new(0, 540, 0, 340)
+    local FULL_POS     = UDim2.new(0.5, -270, 0.5, -170)
+    local MINI_SIZE    = UDim2.new(0, 52,  0, 52)
+    local MINI_POS     = UDim2.new(0.02, 0, 0.5, -26)
+    local SQUASH_SIZE  = UDim2.new(0, 620, 0, 160)
+    local SQUASH_POS   = UDim2.new(0.5, -310, 0.5, -80)
     local animating = false
 
     local main = Instance.new("Frame")
@@ -571,31 +573,47 @@ function Lib:CreateWindow(title, author, iconId)
         main.Size = MINI_SIZE
         main.Position = MINI_POS
         main.Visible = true
-        tw(toggleBtn, {BackgroundTransparency = TRANS.GLASS}, 0.2)
-        local t = TweenService:Create(main,
-            TweenInfo.new(0.45, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
-            {Size = FULL_SIZE, Position = FULL_POS}
+        tw(toggleBtn, {BackgroundTransparency = TRANS.GLASS}, 0.15)
+
+        local t1 = TweenService:Create(main,
+            TweenInfo.new(0.18, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
+            {Size = SQUASH_SIZE, Position = SQUASH_POS}
         )
-        t:Play()
-        t.Completed:Connect(function() animating = false end)
+        t1.Completed:Connect(function()
+            local t2 = TweenService:Create(main,
+                TweenInfo.new(0.38, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
+                {Size = FULL_SIZE, Position = FULL_POS}
+            )
+            t2.Completed:Connect(function() animating = false end)
+            t2:Play()
+        end)
+        t1:Play()
     end
 
     local function closeGui()
         if animating then return end
         animating = true
         guiVisible = false
-        tw(toggleBtn, {BackgroundTransparency = 0.6}, 0.2)
-        local t = TweenService:Create(main,
-            TweenInfo.new(0.32, Enum.EasingStyle.Back, Enum.EasingDirection.In),
-            {Size = MINI_SIZE, Position = MINI_POS}
+        tw(toggleBtn, {BackgroundTransparency = 0.6}, 0.15)
+
+        local t1 = TweenService:Create(main,
+            TweenInfo.new(0.16, Enum.EasingStyle.Quart, Enum.EasingDirection.In),
+            {Size = SQUASH_SIZE, Position = SQUASH_POS}
         )
-        t:Play()
-        t.Completed:Connect(function()
-            main.Visible = false
-            main.Size = FULL_SIZE
-            main.Position = FULL_POS
-            animating = false
+        t1.Completed:Connect(function()
+            local t2 = TweenService:Create(main,
+                TweenInfo.new(0.28, Enum.EasingStyle.Back, Enum.EasingDirection.In),
+                {Size = MINI_SIZE, Position = MINI_POS}
+            )
+            t2.Completed:Connect(function()
+                main.Visible = false
+                main.Size = FULL_SIZE
+                main.Position = FULL_POS
+                animating = false
+            end)
+            t2:Play()
         end)
+        t1:Play()
     end
 
     table.insert(conns, toggleBtn.MouseButton1Click:Connect(function()
