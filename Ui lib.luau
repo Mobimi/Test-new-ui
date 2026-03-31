@@ -545,10 +545,16 @@ function Lib:CreateWindow(title, author, iconId)
     stroke(toggleBtn, THEME.ACCENT, 2)
     makeDraggable(toggleBtn, conns)
 
+    local FULL_SIZE = UDim2.new(0, 540, 0, 340)
+    local FULL_POS  = UDim2.new(0.5, -270, 0.5, -170)
+    local MINI_SIZE = UDim2.new(0, 52, 0, 52)
+    local MINI_POS  = UDim2.new(0.02, 0, 0.5, -26)
+    local animating = false
+
     local main = Instance.new("Frame")
     main.Name = "Main"
-    main.Size = UDim2.new(0, 540, 0, 340)
-    main.Position = UDim2.new(0.5, -270, 0.5, -170)
+    main.Size = FULL_SIZE
+    main.Position = FULL_POS
     main.BackgroundColor3 = THEME.BG_MAIN
     main.BackgroundTransparency = TRANS.GLASS
     main.BorderSizePixel = 0
@@ -558,10 +564,42 @@ function Lib:CreateWindow(title, author, iconId)
     stroke(main, THEME.ACCENT, 2)
     makeDraggable(main, conns)
 
+    local function openGui()
+        if animating then return end
+        animating = true
+        guiVisible = true
+        main.Size = MINI_SIZE
+        main.Position = MINI_POS
+        main.Visible = true
+        tw(toggleBtn, {BackgroundTransparency = TRANS.GLASS}, 0.2)
+        local t = TweenService:Create(main,
+            TweenInfo.new(0.45, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
+            {Size = FULL_SIZE, Position = FULL_POS}
+        )
+        t:Play()
+        t.Completed:Connect(function() animating = false end)
+    end
+
+    local function closeGui()
+        if animating then return end
+        animating = true
+        guiVisible = false
+        tw(toggleBtn, {BackgroundTransparency = 0.6}, 0.2)
+        local t = TweenService:Create(main,
+            TweenInfo.new(0.32, Enum.EasingStyle.Back, Enum.EasingDirection.In),
+            {Size = MINI_SIZE, Position = MINI_POS}
+        )
+        t:Play()
+        t.Completed:Connect(function()
+            main.Visible = false
+            main.Size = FULL_SIZE
+            main.Position = FULL_POS
+            animating = false
+        end)
+    end
+
     table.insert(conns, toggleBtn.MouseButton1Click:Connect(function()
-        guiVisible = not guiVisible
-        main.Visible = guiVisible
-        tw(toggleBtn, {BackgroundTransparency = guiVisible and TRANS.GLASS or 0.6}, 0.2)
+        if guiVisible then closeGui() else openGui() end
     end))
 
     local sidebar = Instance.new("Frame")
