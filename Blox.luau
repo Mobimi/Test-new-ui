@@ -132,7 +132,7 @@ if _G.J4F_WINDOW then
 end
 
 -- Load UI Lib from GitHub for public use
-local UiLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/Mobimi/hhhh/refs/heads/main/Ui%20libs.luau?v=" .. tick()))()
+local UiLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/Mobimi/Test-new-ui/refs/heads/main/Ui%20lib.luau?v=" .. tick()))()
 local Window = UiLib:CreateWindow("j4f", "tiktok: @realayako")
 local THEME = UiLib.THEME
 _G.J4F_WINDOW = Window -- Lưu lại để dọn dẹp lần sau
